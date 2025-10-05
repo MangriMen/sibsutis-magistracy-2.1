@@ -1,53 +1,41 @@
-#include <chrono>
 #include "generators.h"
 
-void find_multiplicative_group_generator(mpz_t g, const mpz_t p)
+#include <chrono>
+#include <iostream>
+
+void find_multiplicative_group_generator(mpz_t g, const mpz_t q, const mpz_t p)
 {
-  mpz_t temp;
-  mpz_init(temp);
+    mpz_t temp;
+    mpz_init(temp);
 
-  // Try successive integers starting from 2
-  mpz_set_ui(g, 2);
-  while (mpz_cmp(g, p) < 0)
-  {
-    mpz_powm_ui(temp, g, 2, p);
-    if (mpz_cmp_ui(temp, 1) != 0)
-    {
-      mpz_sub_ui(temp, p, 1);
-      mpz_powm(temp, g, temp, p);
-      if (mpz_cmp_ui(temp, 1) == 0)
-      {
-        break;
-      }
+    for (mpz_set_ui(g, 2); mpz_cmp(g, p) < 0; mpz_add_ui(g, g, 1)) { // g^q mod p != 1
+        mpz_powm(temp, g, q, p);
+        if (mpz_cmp_ui(temp, 1) != 0) { // g is a generator
+            break;
+        }
     }
-    mpz_add_ui(g, g, 1);
-  }
 
-  mpz_clear(temp);
+    mpz_clear(temp);
 }
 
-void find_cyclic_subgroup_generator(mpz_t g, const mpz_t q, const mpz_t p)
+void find_cyclic_subgroup_generator(mpz_t g, const mpz_t q, const mpz_t p, unsigned long seed)
 {
-  mpz_t r, temp;
-  mpz_init(r);
-  mpz_init(temp);
+    mpz_t r, temp;
+    mpz_inits(r, temp, NULL);
 
-  // Initialize random state
-  gmp_randstate_t state;
-  gmp_randinit_default(state);
-  gmp_randseed_ui(state, std::chrono::system_clock::now().time_since_epoch().count());
+    gmp_randstate_t state;
+    gmp_randinit_default(state);
+    gmp_randseed_ui(state, seed);
 
-  mpz_sub_ui(temp, p, 1);
-  mpz_divexact(temp, temp, q); // temp = (p-1)/q
+    mpz_sub_ui(temp, p, 1);
+    mpz_divexact(temp, temp, q); // temp = (p-1)/q
 
-  do
-  {
-    // Choose random r between 1 and p-1
-    mpz_urandomm(r, state, p);
-    mpz_powm(g, r, temp, p);
-  } while (mpz_cmp_ui(g, 1) == 0);
+    do {
+        mpz_urandomm(r, state, p); // r in [0, p-1]
+        mpz_add_ui(r, r, 1); // r in [1, p-1]
+        mpz_powm(g, r, temp, p); // g = r^((p-1)/q) mod p
+    } while (mpz_cmp_ui(g, 1) == 0); // Repeat if g == 1 to find a valid subgroup generator
 
-  gmp_randclear(state);
-  mpz_clear(r);
-  mpz_clear(temp);
+    mpz_clears(r, temp, NULL);
+    gmp_randclear(state);
 }
