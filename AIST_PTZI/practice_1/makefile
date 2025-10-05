@@ -8,6 +8,22 @@ NETWORK_LDFLAGS := -lws2_32
 BUILD_DIR := build
 TARGET_DIR := bin
 
+ifdef WIN32
+    NETWORK_LDFLAGS = -lws2_32 -lgmp
+    CXXFLAGS += -D_WIN32_WINNT=0x0600
+else ifdef WINDIR
+    NETWORK_LDFLAGS = -lws2_32 -lgmp
+    CXXFLAGS += -D_WIN32_WINNT=0x0600
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        NETWORK_LDFLAGS = -lgmp
+    endif
+    ifeq ($(UNAME_S),Darwin)
+        NETWORK_LDFLAGS = -lgmp
+    endif
+endif
+
 
 # =======================
 # Lib

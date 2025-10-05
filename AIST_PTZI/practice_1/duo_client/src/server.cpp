@@ -3,8 +3,9 @@
 #include "dh_params.h"
 #include "measure.h"
 #include "mqv.h"
-#include "network.h"
+#include "network_session.h"
 #include "print.h"
+#include <iostream>
 
 const int NAME_WIDTH = 24;
 const int CYCLES_WIDTH = 20;

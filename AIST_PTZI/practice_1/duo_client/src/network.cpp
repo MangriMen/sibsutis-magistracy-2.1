@@ -1,6 +1,7 @@
 #include "network.h"
+#include <cstring>
+#include <iostream>
 
-// Function to convert mpz_t to string for network transmission
 std::string mpz_to_string(const mpz_t num)
 {
     char* str = mpz_get_str(nullptr, 16, num);
@@ -9,28 +10,37 @@ std::string mpz_to_string(const mpz_t num)
     return result;
 }
 
-// Function to convert string back to mpz_t
 void string_to_mpz(mpz_t num, const std::string& str)
 {
     mpz_set_str(num, str.c_str(), 16);
 }
 
-// Function to send mpz_t over socket
-bool send_mpz(SOCKET sock, const mpz_t num)
+bool send_mpz(SocketType sock, const mpz_t num)
 {
     std::string str = mpz_to_string(num);
     str += "\n";
-    return send(sock, str.c_str(), str.length(), 0) != SOCKET_ERROR;
+
+#ifdef _WIN32
+    int result = send(sock, str.c_str(), static_cast<int>(str.length()), 0);
+    return result != SOCKET_ERROR && static_cast<size_t>(result) == str.length();
+#else
+    ssize_t bytes_sent = send(sock, str.c_str(), str.length(), 0);
+    return bytes_sent != -1 && static_cast<size_t>(bytes_sent) == str.length();
+#endif
 }
 
-// Function to receive mpz_t from socket
-bool receive_mpz(SOCKET sock, mpz_t num)
+bool receive_mpz(SocketType sock, mpz_t num)
 {
     char buffer[BUFFER_SIZE];
     std::string str;
-    int bytes;
 
+#ifdef _WIN32
+    int bytes;
     while ((bytes = recv(sock, buffer, BUFFER_SIZE - 1, 0)) > 0) {
+#else
+    ssize_t bytes;
+    while ((bytes = recv(sock, buffer, BUFFER_SIZE - 1, 0)) > 0) {
+#endif
         buffer[bytes] = '\0';
         str += buffer;
         if (str.find('\n') != std::string::npos) {
