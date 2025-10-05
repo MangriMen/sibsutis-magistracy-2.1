@@ -2,7 +2,6 @@
 
 #include <chrono>
 #include <gmp.h>
-#include <rdtsc.h>
 #include <vector>
 
 std::string center(const std::string s, const int w);

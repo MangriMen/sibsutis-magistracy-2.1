@@ -1,7 +1,5 @@
 #include "print.h"
 
-#include <rdtsc.h>
-
 #include <chrono>
 #include <iomanip>
 #include <iostream>
