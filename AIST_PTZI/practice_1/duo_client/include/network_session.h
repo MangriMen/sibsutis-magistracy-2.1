@@ -36,9 +36,8 @@ private:
     int clientSocket;
 #endif
 
-    static const unsigned DEFAULT_PORT = 8080;
+    static const unsigned DEFAULT_PORT = 12345;
 
-    // Запрет копирования
     NetworkSession(const NetworkSession&) = delete;
     NetworkSession& operator=(const NetworkSession&) = delete;
 };
