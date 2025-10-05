@@ -3,6 +3,7 @@ CXXFLAGS := -Wall -Wextra -pedantic -std=c++17
 DEBUG_FLAGS := -g -O0
 RELEASE_FLAGS := -O2 -DNDEBUG
 LDFLAGS := -lgmp
+NETWORK_LDFLAGS := -lws2_32
 
 BUILD_DIR := build
 TARGET_DIR := bin
@@ -69,7 +70,7 @@ $(GEN_TARGET): $(GEN_OBJ) $(VISUAL_OBJ) $(LIB_OBJ) | $(TARGET_DIR)
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
 $(DUO_CLIENT_TARGET): $(DUO_CLIENT_OBJ) $(VISUAL_OBJ) $(LIB_OBJ) | $(TARGET_DIR)
-	$(CXX) $^ -o $@ $(LDFLAGS)
+	$(CXX) $^ -o $@ $(LDFLAGS) $(NETWORK_LDFLAGS)
 
 # --- Compile objects with dependency generation ---
 $(BUILD_DIR)/lib_%.o: $(LIB_DIR)/src/%.cpp | $(BUILD_DIR)
