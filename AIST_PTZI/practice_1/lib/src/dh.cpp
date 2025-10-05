@@ -1,12 +1,6 @@
 #include "dh.h"
 
 #include <chrono>
-#include <cstring>
-#include <fstream>
-#include <iostream>
-#include <random>
-
-#include "utils.h"
 
 void generate_private_key(mpz_t private_key, const mpz_t q)
 {

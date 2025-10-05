@@ -3,10 +3,6 @@
 #include <chrono>
 #include <fstream>
 
-#include "generators.h"
-#include "prime.h"
-#include "utils.h"
-
 void save_params_to_file(const DHParams& params, const std::string& filename)
 {
     std::ofstream file(filename);

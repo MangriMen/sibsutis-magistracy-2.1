@@ -10,9 +10,10 @@
 #include "dh.h"
 #include "dh_params.h"
 #include "generators.h"
+#include "measure.h"
 #include "mqv.h"
 #include "prime.h"
-#include "utils.h"
+#include "print.h"
 
 const int NAME_WIDTH = 24;
 const int CYCLES_WIDTH = 20;

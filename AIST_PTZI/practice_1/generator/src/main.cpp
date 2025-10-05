@@ -1,12 +1,11 @@
-#include <rdtsc.h>
-
 #include <chrono>
 #include <iostream>
 
 #include "dh_params.h"
 #include "generators.h"
+#include "measure.h"
 #include "prime.h"
-#include "utils.h"
+#include "print.h"
 
 void save_params(const mpz_t q, const mpz_t p, const mpz_t g,
     const std::string& params_path)

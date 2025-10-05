@@ -1,79 +1,115 @@
 CXX := g++
-CXXFLAGS := -Wall -Wextra -pedantic -std=c++17 -Iinclude
+CXXFLAGS := -Wall -Wextra -pedantic -std=c++17
 DEBUG_FLAGS := -g -O0
 RELEASE_FLAGS := -O2 -DNDEBUG
 LDFLAGS := -lgmp
 
-SRC_DIR := src
-INC_DIR := include
 BUILD_DIR := build
 TARGET_DIR := bin
 
-DEMO_SOURCE := $(SRC_DIR)/demo.cpp
-DEMO_GENERATOR_SOURCE := $(SRC_DIR)/demo_generator.cpp
 
-SOURCES := $(filter-out $(DEMO_SOURCE) $(DEMO_GENERATOR_SOURCE), $(wildcard $(SRC_DIR)/*.cpp))
-OBJECTS := $(SOURCES:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
+# =======================
+# Lib
+# =======================
+LIB_DIR := lib
+LIB_SRC := $(wildcard $(LIB_DIR)/src/*.cpp)
+LIB_OBJ := $(patsubst $(LIB_DIR)/src/%.cpp,$(BUILD_DIR)/lib_%.o,$(LIB_SRC))
+LIB_DEP := $(LIB_OBJ:.o=.d)
+LIB_INC := -I$(LIB_DIR)/include
 
-DEMO_OBJECT := $(BUILD_DIR)/demo.o
-DEMO_GENERATOR_OBJECT := $(BUILD_DIR)/demo_generator.o
+# =======================
+# Visual
+# =======================
+VISUAL_DIR := visual
+VISUAL_SRC := $(wildcard $(VISUAL_DIR)/src/*.cpp)
+VISUAL_OBJ := $(patsubst $(VISUAL_DIR)/src/%.cpp,$(BUILD_DIR)/visual_%.o,$(VISUAL_SRC))
+VISUAL_DEP := $(VISUAL_OBJ:.o=.d)
+VISUAL_INC := -I$(VISUAL_DIR)/include
 
+# =======================
+# Demo
+# =======================
+DEMO_DIR := demo
+DEMO_SRC := $(wildcard $(DEMO_DIR)/src/*.cpp)
+DEMO_OBJ := $(patsubst $(DEMO_DIR)/src/%.cpp,$(BUILD_DIR)/demo_%.o,$(DEMO_SRC))
+DEMO_DEP := $(DEMO_OBJ:.o=.d)
 DEMO_TARGET := $(TARGET_DIR)/demo
-DEMO_GENERATOR_TARGET := $(TARGET_DIR)/demo_generator
+DEMO_INC := -I$(DEMO_DIR)/include
 
-all: $(DEMO_TARGET) $(DEMO_GENERATOR_TARGET)
+# =======================
+# Generator
+# =======================
+GEN_DIR := generator
+GEN_SRC := $(wildcard $(GEN_DIR)/src/*.cpp)
+GEN_OBJ := $(patsubst $(GEN_DIR)/src/%.cpp,$(BUILD_DIR)/generator_%.o,$(GEN_SRC))
+GEN_DEP := $(GEN_OBJ:.o=.d)
+GEN_TARGET := $(TARGET_DIR)/generator
+GEN_INC := -I$(GEN_DIR)/include
 
-$(DEMO_TARGET): $(OBJECTS) $(DEMO_OBJECT) | $(TARGET_DIR)
-	$(CXX) $(OBJECTS) $(DEMO_OBJECT) -o $@ $(LDFLAGS)
+# =======================
+# Duo Client
+# =======================
+DUO_CLIENT_DIR := duo_client
+DUO_CLIENT_SRC := $(wildcard $(DUO_CLIENT_DIR)/src/*.cpp)
+DUO_CLIENT_OBJ := $(patsubst $(DUO_CLIENT_DIR)/src/%.cpp,$(BUILD_DIR)/duo_client_%.o,$(DUO_CLIENT_SRC))
+DUO_CLIENT_DEP := $(DUO_CLIENT_OBJ:.o=.d)
+DUO_CLIENT_TARGET := $(TARGET_DIR)/duo_client
+DUO_CLIENT_INC := -I$(DUO_CLIENT_DIR)/include
 
-$(DEMO_GENERATOR_TARGET): $(OBJECTS) $(DEMO_GENERATOR_OBJECT) | $(TARGET_DIR)
-	$(CXX) $(OBJECTS) $(DEMO_GENERATOR_OBJECT) -o $@ $(LDFLAGS)
+# =======================
+# All
+# =======================
+all: $(DEMO_TARGET) $(GEN_TARGET) $(DUO_CLIENT_TARGET)
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+# --- Link targets ---
+$(DEMO_TARGET): $(DEMO_OBJ) $(VISUAL_OBJ) $(LIB_OBJ) | $(TARGET_DIR)
+	$(CXX) $^ -o $@ $(LDFLAGS)
 
-$(DEMO_OBJECT): $(DEMO_SOURCE) | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(GEN_TARGET): $(GEN_OBJ) $(VISUAL_OBJ) $(LIB_OBJ) | $(TARGET_DIR)
+	$(CXX) $^ -o $@ $(LDFLAGS)
 
-$(DEMO_GENERATOR_OBJECT): $(DEMO_GENERATOR_SOURCE) | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(DUO_CLIENT_TARGET): $(DUO_CLIENT_OBJ) $(VISUAL_OBJ) $(LIB_OBJ) | $(TARGET_DIR)
+	$(CXX) $^ -o $@ $(LDFLAGS)
 
+# --- Compile objects with dependency generation ---
+$(BUILD_DIR)/lib_%.o: $(LIB_DIR)/src/%.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $(LIB_INC) -MMD -MP -c $< -o $@
+
+$(BUILD_DIR)/visual_%.o: $(VISUAL_DIR)/src/%.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $(VISUAL_INC) -MMD -MP -c $< -o $@
+
+$(BUILD_DIR)/demo_%.o: $(DEMO_DIR)/src/%.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $(DEMO_INC) $(VISUAL_INC) $(LIB_INC) -MMD -MP -c $< -o $@
+
+$(BUILD_DIR)/generator_%.o: $(GEN_DIR)/src/%.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $(GEN_INC) $(VISUAL_INC) $(LIB_INC) -MMD -MP -c $< -o $@
+
+$(BUILD_DIR)/duo_client_%.o: $(DUO_CLIENT_DIR)/src/%.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $(DUO_CLIENT_INC) $(VISUAL_INC) $(LIB_INC) -MMD -MP -c $< -o $@
+
+# --- Include dependency files ---
+-include $(LIB_DEP)
+-include $(VISUAL_DEP)
+-include $(DEMO_DEP)
+-include $(GEN_DEP)
+-include $(DUO_CLIENT_DEP)
+
+# --- Directories ---
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 $(TARGET_DIR):
 	mkdir -p $(TARGET_DIR)
 
+# --- Clean ---
+clean:
+	rm -rf $(BUILD_DIR) $(TARGET_DIR)
+
+# --- Debug / Release ---
 debug: CXXFLAGS += $(DEBUG_FLAGS)
 debug: all
 
 release: CXXFLAGS += $(RELEASE_FLAGS)
 release: all
 
-demo: $(DEMO_TARGET)
-demo_generator: $(DEMO_GENERATOR_TARGET)
-
-clean:
-	rm -rf $(BUILD_DIR) $(TARGET_DIR)
-
-rebuild: clean all
-
-help:
-	@echo "Available targets:"
-	@echo "  all       - build demo application"
-	@echo "  demo      - build demo application"
-	@echo "  generator - build demo generator application"
-	@echo "  debug     - build with debug information"
-	@echo "  release   - build with optimizations"
-	@echo "  clean     - remove build artifacts"
-	@echo "  rebuild   - clean and rebuild everything"
-	@echo "  help      - show this help"
-
-.PHONY: all debug release demo generator clean rebuild install help
-
--include $(OBJECTS:.o=.d)
--include $(DEMO_OBJECT:.o=.d)
--include $(DEMO_GENERATOR_OBJECT:.o=.d)
-
-$(BUILD_DIR)/%.d: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
-	@$(CXX) $(CXXFLAGS) -MM -MT $(@:.d=.o) $< > $@
+.PHONY: all debug release clean

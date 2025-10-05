@@ -1,8 +1,5 @@
 #include "generators.h"
 
-#include <chrono>
-#include <iostream>
-
 void find_multiplicative_group_generator(mpz_t g, const mpz_t q, const mpz_t p)
 {
     mpz_t temp;
