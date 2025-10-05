@@ -1,7 +1,7 @@
 #include <chrono>
 #include "generators.h"
 
-void find_generator_full_group(mpz_t g, const mpz_t p)
+void find_multiplicative_group_generator(mpz_t g, const mpz_t p)
 {
   mpz_t temp;
   mpz_init(temp);
@@ -26,7 +26,7 @@ void find_generator_full_group(mpz_t g, const mpz_t p)
   mpz_clear(temp);
 }
 
-void find_generator_subgroup(mpz_t g, const mpz_t p, const mpz_t q)
+void find_cyclic_subgroup_generator(mpz_t g, const mpz_t q, const mpz_t p)
 {
   mpz_t r, temp;
   mpz_init(r);

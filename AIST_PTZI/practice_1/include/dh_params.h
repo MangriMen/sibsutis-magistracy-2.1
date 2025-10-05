@@ -12,7 +12,7 @@ struct DHParams
 
 void init_dh_params(DHParams &params);
 void clear_dh_params(DHParams &params);
-void generate_params(DHParams &params, unsigned int p_bits = 1024, unsigned int q_bits = 160);
+void generate_params(DHParams &params, unsigned int q_bits = 256);
 
 void save_params_to_file(const DHParams &params, const std::string &filename);
 void load_params_from_file(DHParams &params, const std::string &filename);

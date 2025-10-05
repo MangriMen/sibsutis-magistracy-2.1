@@ -2,5 +2,9 @@
 
 #include <gmp.h>
 
-bool is_prime(const mpz_t n, int reps = 25);
 void print_number(const char *label, const mpz_t num);
+
+std::string center(const std::string s, const int w);
+std::string left(const std::string s, const int w);
+
+std::string prd(const unsigned int x, const int width);
