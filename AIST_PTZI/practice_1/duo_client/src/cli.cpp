@@ -59,7 +59,6 @@ void print_usage(std::string& path)
     std::cout << "  Server mode: " << cleaned_name << " -s <protocol> <params_file>" << std::endl;
     std::cout << "  Client mode: " << cleaned_name << " -c <protocol> <params_file> <server_ip>" << std::endl;
     std::cout << "Protocols:" << std::endl;
-    std::cout << "  dh         - Diffie-Hellman" << std::endl;
-    std::cout << "  subgroup   - Subgroup Diffie-Hellman" << std::endl;
+    std::cout << "  dh         - Diffie-Hellman (subgroup depends on params)" << std::endl;
     std::cout << "  mqv        - MQV protocol" << std::endl;
 }

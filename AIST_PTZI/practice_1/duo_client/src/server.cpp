@@ -16,9 +16,6 @@ void run_server(const std::string& params_path, Protocol protocol)
     case Protocol::DH:
         run_dh_server(params_path);
         break;
-    case Protocol::Subgroup_DH:
-        run_subgroup_dh_server(params_path);
-        break;
     case Protocol::MQV:
         run_mqv_server(params_path);
         break;
@@ -58,53 +55,6 @@ void run_dh_server(const std::string& params_path)
 
         print_performance_table(
             "Diffie-Hellman protocol (Server)",
-            { { "Server key", server_key_time },
-                { "Server shared secret", server_secret_time } },
-            NAME_WIDTH, CYCLES_WIDTH);
-
-        std::cout << "\nServer's shared secret:" << std::endl;
-        mpz_out_str(stdout, 16, server_secret);
-        std::cout << std::endl;
-    } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-    }
-
-    mpz_clears(server_private, server_public, client_public, server_secret, NULL);
-}
-
-void run_subgroup_dh_server(const std::string& params_path)
-{
-    NetworkSession session;
-    session.start_server();
-
-    std::cout << "Starting Subgroup Diffie-Hellman key exchange..." << std::endl;
-
-    DHParams params;
-    load_params_from_file(params, params_path);
-
-    mpz_t server_private, server_public, client_public, server_secret;
-    mpz_inits(server_private, server_public, client_public, server_secret, NULL);
-
-    try {
-        auto server_key_time = measure_time([&]() {
-            generate_private_key(server_private, params.q);
-            generate_public_key(server_public, params.g, server_private, params.p);
-        });
-
-        if (!session.send_value(server_public)) {
-            throw std::runtime_error("Failed to send public key");
-        }
-
-        if (!session.receive_value(client_public)) {
-            throw std::runtime_error("Failed to receive client's public key");
-        }
-
-        auto server_secret_time = measure_time([&]() {
-            compute_shared_secret(server_secret, client_public, server_private, params.p);
-        });
-
-        print_performance_table(
-            "Subgroup Diffie-Hellman protocol (Server)",
             { { "Server key", server_key_time },
                 { "Server shared secret", server_secret_time } },
             NAME_WIDTH, CYCLES_WIDTH);
