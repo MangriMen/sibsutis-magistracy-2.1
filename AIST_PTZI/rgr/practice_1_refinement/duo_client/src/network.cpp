@@ -1,6 +1,8 @@
 #include "network.h"
+#include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <vector>
 
 std::string mpz_to_string(const mpz_t num)
 {
@@ -54,4 +56,49 @@ bool receive_mpz(SocketType sock, mpz_t num)
     str = str.substr(0, str.find('\n'));
     string_to_mpz(num, str);
     return true;
+}
+
+int send_all(SocketType sock, const std::vector<uint8_t>& data)
+{
+    size_t total_sent = 0;
+    const char* data_ptr = reinterpret_cast<const char*>(data.data());
+    const auto size = data.size();
+
+    while (total_sent < size) {
+#ifdef _WIN32
+        int to_send = static_cast<int>(std::min<size_t>(size - total_sent, static_cast<size_t>(INT_MAX)));
+        int bytes_sent = send(sock, data_ptr + total_sent, to_send, 0);
+#else
+        ssize_t bytes_sent = send(sock, data_ptr + total_sent, size - total_sent, 0);
+#endif
+        if (bytes_sent <= 0)
+            return bytes_sent;
+        total_sent += static_cast<size_t>(bytes_sent);
+    }
+
+    return 1;
+}
+
+int receive_all(SocketType sock, std::vector<uint8_t>& out, size_t size)
+{
+    out.resize(size);
+    if (size == 0)
+        return true;
+
+    size_t total_received = 0;
+    char* data_ptr = reinterpret_cast<char*>(out.data());
+
+    while (total_received < size) {
+#ifdef _WIN32
+        int to_recv = static_cast<int>(std::min<size_t>(size - total_received, static_cast<size_t>(INT_MAX)));
+        int bytes_received = recv(sock, data_ptr + total_received, to_recv, 0);
+#else
+        ssize_t bytes_received = recv(sock, data_ptr + total_received, size - total_received, 0);
+#endif
+        if (bytes_received <= 0)
+            return bytes_received; // ошибка или соединение закрыто раньше времени
+        total_received += static_cast<size_t>(bytes_received);
+    }
+
+    return 1;
 }

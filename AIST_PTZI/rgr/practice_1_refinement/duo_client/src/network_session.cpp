@@ -1,5 +1,6 @@
 #include "network_session.h"
 #include "network.h"
+#include <vector>
 
 NetworkSession::NetworkSession()
     : serverSocket(INVALID_SOCKET_VALUE)
@@ -101,4 +102,14 @@ bool NetworkSession::send_value(const mpz_t value)
 bool NetworkSession::receive_value(mpz_t value)
 {
     return receive_mpz(clientSocket, value);
+}
+
+int NetworkSession::send_data(const std::vector<uint8_t>& data)
+{
+    return send_all(clientSocket, data);
+}
+
+int NetworkSession::receive_data(std::vector<uint8_t>& out, size_t size)
+{
+    return receive_all(clientSocket, out, size);
 }

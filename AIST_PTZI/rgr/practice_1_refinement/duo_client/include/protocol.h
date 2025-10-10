@@ -3,7 +3,8 @@
 
 enum class Protocol {
     DH,
-    MQV
+    MQV,
+    MQV_SHA256_SALSA20
 };
 
 inline Protocol parse_protocol(std::string str)
@@ -12,6 +13,8 @@ inline Protocol parse_protocol(std::string str)
         return Protocol::DH;
     } else if (str == "mqv") {
         return Protocol::MQV;
+    } else if (str == "mqv-sha256-salsa20") {
+        return Protocol::MQV_SHA256_SALSA20;
     } else {
         throw std::invalid_argument("Unknown protocol: " + str);
     }

@@ -13,6 +13,7 @@ struct Args {
     Protocol protocol;
     std::string params_path;
     std::string server_ip;
+    std::string file_to_send;
 };
 
 RunMode parse_run_mode(std::string mode);

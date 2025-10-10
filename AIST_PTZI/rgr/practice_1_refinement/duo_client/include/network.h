@@ -1,7 +1,9 @@
 #pragma once
 
+#include <cstdint>
 #include <gmp.h>
 #include <string>
+#include <vector>
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -26,3 +28,6 @@ void string_to_mpz(mpz_t num, const std::string& str);
 
 bool send_mpz(SocketType sock, const mpz_t num);
 bool receive_mpz(SocketType sock, mpz_t num);
+
+int send_all(SocketType sock, const std::vector<uint8_t>& data);
+int receive_all(SocketType sock, std::vector<uint8_t>& out, size_t size);

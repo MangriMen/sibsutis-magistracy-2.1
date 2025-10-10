@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
             if (args.server_ip.empty()) {
                 return EXIT_FAILURE;
             }
-            run_client(args.params_path, args.server_ip, args.protocol);
+            run_client(args.params_path, args.server_ip, args.protocol, args.file_to_send);
             break;
         default:
             print_usage(executable_name);
