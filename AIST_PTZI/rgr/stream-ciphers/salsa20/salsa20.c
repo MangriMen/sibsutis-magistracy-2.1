@@ -1,9 +1,5 @@
+#include "salsa20.h"
 #include "ecrypt-sync.h"
-
-#define ROTATE(v,c) (ROTL32(v,c))
-#define XOR(v,w) ((v) ^ (w))
-#define PLUS(v,w) (U32V((v) + (w)))
-#define PLUSONE(v) (PLUS((v),1))
 
 static void salsa20_wordtobyte(u8 output[64],const u32 input[16])
 {
@@ -53,9 +49,6 @@ void ECRYPT_init(void)
 {
   return;
 }
-
-static const char sigma[17] = "expand 32-byte k";
-static const char tau[17] = "expand 16-byte k";
 
 void ECRYPT_keysetup(ECRYPT_ctx *x,const u8 *k,u32 kbits,u32 ivbits)
 {
@@ -125,28 +118,3 @@ void ECRYPT_keystream_bytes(ECRYPT_ctx *x,u8 *stream,u32 bytes)
   for (i = 0;i < bytes;++i) stream[i] = 0;
   ECRYPT_encrypt_bytes(x,stream,stream,bytes);
 }
-
-
-#include <memory.h>
-#include <stdio.h>
-
-ECRYPT_ctx ctx;
-
-int main (int argc, char* argv[])
-  {
-  u8 K [16], IV [16], in [100], out [100];
-  memset (K, 0, 16);
-  memset (IV, 0, 16);
-  memset (in, 0, 100);
-  if (argc > 1) for (int i = 0; argv[1][i]; i++) K[i] = argv[1][i];
-  if (argc > 2) for (int i = 0; argv[2][i]; i++) IV[i] = argv[2][i];
-  printf ("K = %s  IV = %s\n", K, IV);
-  ECRYPT_init ();
-  ECRYPT_keysetup (&ctx, K, 128, 128);
-  ECRYPT_ivsetup (&ctx, IV);
-  ECRYPT_encrypt_bytes (&ctx, in, out, 100);
-  for (int i = 0; i < 100; i++) printf ("%0x", out[i]);
-  printf ("\n");
-  return 0;
-  }
-
