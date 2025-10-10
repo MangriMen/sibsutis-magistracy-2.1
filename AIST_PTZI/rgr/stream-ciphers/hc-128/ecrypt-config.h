@@ -26,6 +26,8 @@
 #define ECRYPT_LITTLE_ENDIAN
 #elif defined(__INTEL_COMPILER) /* x86 (surely Intel compiler icl.exe) */
 #define ECRYPT_LITTLE_ENDIAN
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+#define ECRYPT_LITTLE_ENDIAN
 
 /* 
  * The BIG endian machines: 
@@ -33,6 +35,8 @@
 #elif defined(sun)              /* Newer Sparc's */
 #define ECRYPT_BIG_ENDIAN
 #elif defined(__ppc__)          /* PowerPC */
+#define ECRYPT_BIG_ENDIAN
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
 #define ECRYPT_BIG_ENDIAN
 
 /* 
