@@ -10,6 +10,7 @@
 #include <iostream>
 #include <salsa20.h>
 #include <sha256.h>
+#include <cstring>
 
 const int NAME_WIDTH = 24;
 const int CYCLES_WIDTH = 20;

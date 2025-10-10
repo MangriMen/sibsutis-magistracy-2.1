@@ -10,6 +10,7 @@
 #include <fstream>
 #include <helpers.h>
 #include <iostream>
+#include <cstring>
 
 const int NAME_WIDTH = 24;
 const int CYCLES_WIDTH = 20;
