@@ -1,0 +1,69 @@
+-- 1
+SELECT
+    sl.SH_ID,
+    sl.SH_NAME,
+    sl.SH_POS,
+    sl.SH_PEN,
+    SUM(sl.SH_PEN) OVER (PARTITION BY sl.SH_POS) AS SH_PEN_TOTAL_BY_POS
+FROM SHOOTER_LIST sl
+ORDER BY
+    SH_PEN_TOTAL_BY_POS DESC,
+    sl.SH_POS,
+    sl.SH_PEN DESC,
+    sl.SH_ID;
+
+-- 2
+SELECT *
+FROM (
+    SELECT
+        sl.SH_TEAM,
+        sl.SH_NAME,
+        sl.SH_GOALS - sl.SH_PEN as SH_GOALS_WITHOUT_PEN,
+        ROW_NUMBER() OVER (PARTITION BY sl.SH_TEAM ORDER BY sl.SH_GOALS - sl.SH_PEN DESC) as RANK
+    FROM SHOOTER_LIST sl
+) sl
+WHERE sl.RANK <= 3
+ORDER BY sl.SH_TEAM, sl.RANK;
+
+-- 3
+SELECT
+    sl.SH_ID,
+    sl.SH_NAME,
+    sl.SH_TEAM,
+    sl.SH_GOALS,
+    (
+        SELECT COUNT(*)
+        FROM SHOOTER_LIST sl2
+        WHERE sl2.SH_TEAM = sl.SH_TEAM
+            AND sl2.SH_GOALS > sl.SH_GOALS
+    ) as TEAM_PLAYERS_GOALS_GREATER_THEN
+FROM SHOOTER_LIST sl;
+
+-- 4
+SELECT
+    sl.SH_NAME,
+    sl.SH_TEAM,
+    sl.SH_GOALS,
+    sl.SH_MIN,
+    AVG(sl.SH_MIN) OVER(PARTITION BY sl.SH_TEAM) as AVG_MIN_PER_SCORING_PLAYER
+FROM SHOOTER_LIST sl
+WHERE sl.SH_GOALS > 0
+ORDER BY sl.SH_TEAM, sl.SH_MIN DESC;
+
+-- 5
+WITH best_scorers AS (
+    SELECT
+        SH_TEAM,
+        SH_NAME,
+        SH_MIN,
+        SH_GOALS,
+        ROW_NUMBER() OVER (PARTITION BY SH_TEAM ORDER BY SH_GOALS DESC, SH_MIN) as goal_rank
+    FROM SHOOTER_LIST
+)
+SELECT
+    bs.SH_TEAM,
+    AVG(bs.SH_MIN) as AVG_MIN_BEST_SCORERS
+FROM best_scorers bs
+WHERE bs.goal_rank = 1
+GROUP BY bs.SH_TEAM
+ORDER BY AVG_MIN_BEST_SCORERS;

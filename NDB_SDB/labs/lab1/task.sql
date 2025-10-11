@@ -1,0 +1,38 @@
+-- One to many
+CREATE TABLE Authors (
+  author_id SERIAL PRIMARY KEY,
+  full_name VARCHAR(100) NOT NULL
+  email VARCHAR(100) UNIQUE
+);
+
+CREATE TABLE Books (
+  book_id SERIAL PRIMARY KEY
+  title VARCHAR(200) NOT NULL
+  'year' INTEGER,
+  author_id INTEGER NOT NULL
+  FOREIGN KEY (author_id) REFERENCES Authors(author_id) ON DELETE CASCADE
+)
+-- Many to many
+CREATE TABLE Students (
+  student_id SERIAL PRIMARY KEY,
+  first_name VARCHAR(50) NOT NULL,
+  last_name VARCHAR(50) NOT NULL,
+  enrollment_year INTEGER
+)
+
+CREATE TABLE Courses (
+  course_id SERIAL PRIMARY KEY,
+  title VARCHAR(100) NOT NULL,
+  'description' TEXT
+)
+
+CREATE TABLE Enrollments(
+  enrollment_id SERIAL PRIMARY KEY,
+  student_id INTEGER NOT NULL,
+  course_id INTEGER NOT NULL,
+  enrollment_date DATE DEFAULT CURRENT_DATE,
+  grade DECIMAL(3,1),
+  FOREIGN KEY (STUDENT_ID) REFERENCES STUDENTS(STUDENT_ID) ON DELETE CASCADE,
+  FOREIGN KEY (COURSE_ID) REFERENCES COURSES(COURSE_ID) ON DELETE CASCADE,
+  UNIQUE(STUDENT_ID, COURSE_ID)
+)

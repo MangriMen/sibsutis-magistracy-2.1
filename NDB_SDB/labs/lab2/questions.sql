@@ -1,0 +1,40 @@
+-- 1
+SELECT MIN(c1.CNUM) - 1 as last_unused_cnum
+FROM CUST c1
+WHERE c1.CNUM > 2003
+  AND NOT EXISTS (
+    SELECT 1
+    FROM CUST c2
+    WHERE c2.CNUM = c1.CNUM - 1
+      AND c2.CNUM > 2003
+  )
+  AND EXISTS (
+    SELECT 1
+    FROM CUST c3
+    WHERE c3.CNUM > 2003
+  );
+
+SELECT MIN(a.CNUM) - 1 as last_unused_cnum
+FROM CUST a
+LEFT JOIN CUST b ON b.CNUM = a.CNUM - 1 AND b.CNUM > 2003
+WHERE a.CNUM > 2003
+  AND b.CNUM IS NULL;
+
+-- 2
+SELECT c1.*
+FROM CUST c1
+WHERE EXISTS (
+    SELECT 1
+    FROM CUST c2
+    WHERE c2.CITY = c1.CITY
+      AND c2.CNUM != c1.CNUM
+);
+
+-- 3
+SELECT c1.*
+FROM CUST c1
+WHERE c1.RATING > ANY (
+    SELECT c2.RATING
+    FROM CUST c2
+    WHERE c2.CITY != c1.CITY
+);
